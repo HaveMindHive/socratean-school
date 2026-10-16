@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Socratean — Teacher</title>
+    <meta name="description" content="Set up courses, learning objectives and house rules for Socratean">
+    <meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1c1914" media="(prefers-color-scheme: dark)">
+    <link rel="apple-touch-icon" href="/icon-180.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); margin: 0 0 20px; overflow-x: auto; }
+        .tab { background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 9px; font: inherit; font-size: 15px; color: var(--ink-soft); cursor: pointer; white-space: nowrap; min-height: 44px; }
+        .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+        .tab:focus-visible, .linkbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+        .card h3 { font-family: var(--serif); font-size: 19px; font-weight: 600; margin-bottom: 4px; }
+        .card .meta { color: var(--ink-soft); font-size: 14px; }
+        .code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 22px; letter-spacing: 0.18em; color: var(--accent-deep); font-weight: 600; }
+        .row { display: flex; gap: 8px; align-items: center; }
+        .row > .text-input { flex: 1; min-width: 0; }
+        .row .btn { width: auto; flex: none; white-space: nowrap; }
+        .iconbtn { flex: none; width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--card); color: var(--ink-soft); font-size: 18px; cursor: pointer; }
+        .iconbtn:disabled { opacity: 0.35; cursor: default; }
+        .linkbtn { background: none; border: 0; color: var(--accent-deep); font: inherit; font-size: 14px; text-decoration: underline; cursor: pointer; padding: 6px 2px; min-height: 36px; }
+        .setting { padding: 14px 0; border-top: 1px solid var(--line); }
+        .setting:first-of-type { border-top: 0; }
+        .setting label.name { display: block; font-weight: 600; font-size: 15px; margin-bottom: 2px; }
+        .setting .why { color: var(--ink-soft); font-size: 14px; margin-bottom: 8px; }
+        .lockbadge { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--caution); background: var(--caution-wash); border-radius: 999px; padding: 2px 9px; margin-left: 8px; vertical-align: 1px; }
+        .setting select, .setting input[type="number"] { font: inherit; font-size: 16px; padding: 10px 12px; min-height: 44px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--card); color: var(--ink); }
+        .setting select:disabled, .setting input:disabled, .setting textarea:disabled { opacity: 0.55; }
+        .checks { display: flex; gap: 18px; flex-wrap: wrap; }
+        .checks label { display: flex; gap: 8px; align-items: center; min-height: 44px; font-size: 15px; }
+        .checks input { width: 20px; height: 20px; accent-color: var(--accent); }
+        .passcode-reveal { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 20px; letter-spacing: 0.14em; user-select: all; }
+        .sticky-save { position: sticky; bottom: 0; background: linear-gradient(to top, var(--paper) 70%, transparent); padding: 14px 0 calc(14px + var(--safe-bottom)); margin-top: 8px; }
+        .empty { color: var(--ink-soft); padding: 28px 0; text-align: center; }
+        .topline { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+
+    <header class="appbar">
+        <a class="wordmark" href="/teacher.html">
+            <svg class="witness-glyph" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+                <path class="wg-fill" d="M12 3 A9 9 0 0 0 12 21 Z"/>
+                <circle cx="12" cy="12" r="9" fill="none" class="wg-line" stroke-width="1.5"/>
+                <line x1="12" y1="3" x2="12" y2="21" class="wg-line" stroke-width="1.5"/>
+            </svg>
+            Socratean
+        </a>
+        <div class="appbar-step">
+            <span class="step-name" id="who">Teacher</span>
+        </div>
+    </header>
+
+    <main>
+        <!-- sign in -->
+        <section class="screen active" id="loginView">
+            <div class="screen-inner">
+                <h2 class="screen-title">Teacher sign in</h2>
+                <p class="screen-sub">Enter the passcode your school gave you.</p>
+                <div class="field">
+                    <label for="passcode">Passcode</label>
+                    <input type="password" class="text-input" id="passcode" autocomplete="current-password" autocapitalize="characters" spellcheck="false">
+                </div>
+                <div class="inline-note error" id="loginError" hidden></div>
+                <button class="btn btn-primary" id="loginBtn">Sign in</button>
+            </div>
+        </section>
+
+        <!-- signed in -->
+        <section class="screen" id="appView">
+            <div class="screen-inner">
+                <div class="topline">
+                    <h2 class="screen-title" id="schoolName">Courses</h2>
+                    <button class="linkbtn" id="signOut">Sign out</button>
+                </div>
+                <div class="tabs" role="tablist" id="tabs"></div>
+
+                <div class="inline-note warn" id="aiBanner" hidden></div>
+                <div id="paneCourses"></div>
+                <div id="paneCourse" hidden></div>
+                <div id="paneSchool" hidden></div>
+                <div id="paneTeachers" hidden></div>
+                <div id="paneAI" hidden></div>
+            </div>
+        </section>
+    </main>
+
+    <div class="toast" id="toast" role="status"></div>
+
+    <script>
+    (function () {
+        'use strict';
+
+        var KEY = 'socratean_auth';
+        var auth = null;       // {token, role, name}
+        var school = null;     // {name, policy}
+        var cur = null;        // course being edited
+        var tab = 'courses';
+
+        var SETTING_NAMES = {
+            grasp_threshold: 'Grasp threshold',
+            paste_policy: 'Pasting into answers',
+            outputs: 'What students can finish with',
+            reading_level: 'Reading level',
+            tutor_guidance: 'Tutor guidance'
+        };
+
+        function $(id) { return document.getElementById(id); }
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function toast(msg) {
+            var el = $('toast');
+            el.textContent = msg; el.classList.add('show');
+            clearTimeout(el._t); el._t = setTimeout(function () { el.classList.remove('show'); }, 3200);
+        }
+        function note(id, msg) { var el = $(id); el.textContent = msg; el.hidden = !msg; }
+
+        function api(path, body) {
+            var opts = { headers: { 'Content-Type': 'application/json' } };
+            if (auth) opts.headers.Authorization = 'Bearer ' + auth.token;
+            if (body !== undefined) { opts.method = 'POST'; opts.body = JSON.stringify(body); }
+            return fetch('/api' + path, opts).then(function (res) {
+                if (res.status === 401 && auth) { signOut(); throw new Error('Please sign in again.'); }
+                if (!res.ok) return res.text().then(function (t) { throw new Error((t || '').trim() || 'Request failed (' + res.status + ')'); });
+                return res.json();
+            });
+        }
+
+        function load() { try { return JSON.parse(sessionStorage.getItem(KEY)); } catch (e) { return null; } }
+        function store() { try { sessionStorage.setItem(KEY, JSON.stringify(auth)); } catch (e) { /* private mode */ } }
+
+        function signOut() {
+            auth = null;
+            try { sessionStorage.removeItem(KEY); } catch (e) { /* ignore */ }
+            $('appView').classList.remove('active'); $('loginView').classList.add('active');
+            $('who').textContent = 'Teacher'; $('passcode').value = '';
+        }
+
+        // ---------- sign in ----------
+        function doLogin() {
+            var code = $('passcode').value.trim();
+            if (!code) { note('loginError', 'Enter your passcode.'); return; }
+            note('loginError', '');
+            $('loginBtn').disabled = true;
+            api('/auth/login', { passcode: code }).then(function (r) {
+                auth = { token: r.token, role: r.role, name: r.name, school: r.school }; store(); enter();
+            }).catch(function (e) { note('loginError', e.message); })
+              .then(function () { $('loginBtn').disabled = false; });
+        }
+        $('loginBtn').addEventListener('click', doLogin);
+        $('passcode').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+        $('signOut').addEventListener('click', signOut);
+
+        function enter() {
+            $('loginView').classList.remove('active'); $('appView').classList.add('active');
+            $('who').textContent = auth.name;
+            $('schoolName').textContent = auth.school || 'Courses';
+            var tabs = [['courses', 'Courses'], ['students', 'Students']];
+            if (auth.role === 'admin') tabs.push(['school', 'School'], ['teachers', 'Teachers'], ['ai', 'AI model']);
+            $('tabs').innerHTML = tabs.map(function (t) {
+                return '<button class="tab" role="tab" data-tab="' + t[0] + '" aria-selected="false">' + t[1] + '</button>';
+            }).join('');
+            $('tabs').querySelectorAll('.tab').forEach(function (b) {
+                b.addEventListener('click', function () { go(b.getAttribute('data-tab')); });
+            });
+            checkAI();
+            // teachers cannot read the school policy directly; they see its effect on each course
+            (auth.role === 'admin' ? api('/admin/school').catch(function () { return null; }) : Promise.resolve(null)).then(function (s) {
+                if (s) { school = s; $('schoolName').textContent = s.name; }
+                go('courses');
+            });
+        }
+
+        function go(t) {
+            if (t === 'students') { location.href = '/professor.html'; return; }
+            tab = t;
+            $('tabs').querySelectorAll('.tab').forEach(function (b) {
+                b.setAttribute('aria-selected', b.getAttribute('data-tab') === t ? 'true' : 'false');
+            });
+            ['Courses', 'Course', 'School', 'Teachers', 'AI'].forEach(function (n) { $('pane' + n).hidden = true; });
+            if (t === 'courses') { $('paneCourses').hidden = false; renderCourses(); }
+            if (t === 'school') { $('paneSchool').hidden = false; renderSchool(); }
+            if (t === 'teachers') { $('paneTeachers').hidden = false; renderTeachers(); }
+            if (t === 'ai') { $('paneAI').hidden = false; renderAI(); }
+        }
+
+        // ---------- courses ----------
+        function renderCourses() {
+            var p = $('paneCourses');
+            p.innerHTML = '<p class="screen-sub">Each course has its own syllabus, learning objectives and rules. Students join with the course code.</p>' +
+                '<div class="btn-row" style="margin-bottom:16px"><button class="btn btn-primary" id="newCourse">New course</button></div><div id="courseList"></div>';
+            $('newCourse').addEventListener('click', function () { openCourse(null); });
+            api('/teacher/courses').then(function (list) {
+                $('courseList').innerHTML = list.length ? list.map(function (c) {
+                    return '<div class="card"><h3>' + esc(c.title) + '</h3>' +
+                        '<div class="meta">' + c.objectives.length + ' objectives &middot; ' + c.students + ' student' + (c.students === 1 ? '' : 's') + '</div>' +
+                        '<div style="margin:10px 0"><span class="meta">Join code</span><div class="code">' + esc(c.join_code) + '</div></div>' +
+                        '<button class="btn btn-ghost" data-open="' + c.id + '">Open</button></div>';
+                }).join('') : '<p class="empty">No courses yet. Start with a syllabus.</p>';
+                $('courseList').querySelectorAll('[data-open]').forEach(function (b) {
+                    b.addEventListener('click', function () {
+                        api('/teacher/course?id=' + b.getAttribute('data-open')).then(openCourse).catch(function (e) { toast(e.message); });
+                    });
+                });
+            }).catch(function (e) { toast(e.message); });
+        }
+
+        function lockedKey(k) { return cur && cur.locked && cur.locked.indexOf(k) >= 0; }
+        function lockBadge(k) { return lockedKey(k) ? '<span class="lockbadge">Set by school</span>' : ''; }
+
+        function openCourse(c) {
+            cur = c || { id: 0, title: '', syllabus: '', objectives: [], overrides: {}, effective: school ? school.policy.defaults : { grasp_threshold: 80, paste_policy: 'record', outputs: ['paper', 'test'], reading_level: '', tutor_guidance: '' }, defaults: school ? school.policy.defaults : null, locked: school ? school.policy.locked : [] };
+            if (!cur.defaults) cur.defaults = cur.effective;
+            ['Courses', 'School', 'Teachers', 'AI'].forEach(function (n) { $('pane' + n).hidden = true; });
+            $('paneCourse').hidden = false;
+            drawCourse();
+            window.scrollTo(0, 0);
+        }
+
+        function drawCourse() {
+            var c = cur, e = c.effective, isNew = !c.id;
+            var gl = c.school_guidance || (school && school.policy.guidance) || '';
+            $('paneCourse').innerHTML =
+                '<button class="back-btn" id="backCourses">&larr; All courses</button>' +
+                '<h2 class="screen-title" style="margin-top:8px">' + (isNew ? 'New course' : esc(c.title)) + '</h2>' +
+                (isNew ? '' : '<div class="card"><span class="meta">Students enter this code to join</span><div class="code">' + esc(c.join_code) + '</div></div>') +
+
+                '<div class="field"><label for="cTitle">Course title</label><input class="text-input" id="cTitle" value="' + esc(c.title) + '"></div>' +
+
+                '<div class="field"><label for="cSyl">Syllabus</label>' +
+                '<textarea class="text-area" id="cSyl" rows="8" placeholder="Paste your syllabus, or upload a text file.">' + esc(c.syllabus) + '</textarea>' +
+                '<div class="row" style="margin-top:8px"><input type="file" id="cFile" accept=".txt,.md,text/plain,text/markdown" style="font-size:14px;max-width:100%">' +
+                '</div><div class="hint">Text and Markdown files work now. For a PDF, copy its text and paste it here.</div></div>' +
+
+                (isNew ? '<div class="inline-note error" id="cErr" hidden></div><button class="btn btn-primary" id="createBtn">Create course and read the syllabus</button>' :
+                '<h3 class="section-title" style="margin-top:24px">Learning objectives</h3>' +
+                '<p class="screen-sub">This is what &ldquo;understands it&rdquo; means in your course. The tutor keeps asking until the student shows each one in their own words. Edit freely.</p>' +
+                '<div id="objList"></div>' +
+                '<div class="btn-row"><button class="btn btn-ghost" id="addObj">Add objective</button><button class="btn btn-ghost" id="reread">Re-read from syllabus</button></div>' +
+
+                '<h3 class="section-title" style="margin-top:28px">Rules for this course</h3>' +
+                '<p class="screen-sub">Your school sets the defaults. You can change anything that is not marked &ldquo;Set by school.&rdquo;</p>' +
+                '<div class="card" id="settingsCard">' + settingsHTML(e, c.defaults, gl) + '</div>' +
+                '<div class="inline-note error" id="cErr" hidden></div>' +
+                '<div class="sticky-save"><button class="btn btn-primary" id="saveBtn">Save course</button></div>');
+
+            $('backCourses').addEventListener('click', function () { go('courses'); });
+            $('cFile').addEventListener('change', function (ev) {
+                var f = ev.target.files[0]; if (!f) return;
+                if (f.size > 1500000) { toast('That file is too large for a syllabus.'); return; }
+                var fr = new FileReader();
+                fr.onload = function () { $('cSyl').value = String(fr.result); toast('Syllabus loaded.'); };
+                fr.readAsText(f);
+            });
+            if (isNew) {
+                $('createBtn').addEventListener('click', createCourse);
+            } else {
+                drawObjectives();
+                $('addObj').addEventListener('click', function () { cur.objectives.push(''); drawObjectives(); var i = document.querySelectorAll('.obj-in'); i[i.length - 1].focus(); });
+                $('reread').addEventListener('click', reread);
+                $('saveBtn').addEventListener('click', saveCourse);
+            }
+        }
+
+        function settingsHTML(e, d, schoolGuidance) {
+            function dis(k) { return lockedKey(k) ? ' disabled' : ''; }
+            var outs = e.outputs || [];
+            return '' +
+              '<div class="setting"><label class="name" for="sThr">' + SETTING_NAMES.grasp_threshold + lockBadge('grasp_threshold') + '</label>' +
+              '<div class="why">How much of the objectives a student must show before they move on. School default: ' + d.grasp_threshold + '%.</div>' +
+              '<input type="number" id="sThr" min="50" max="100" step="5" value="' + e.grasp_threshold + '"' + dis('grasp_threshold') + '> %</div>' +
+
+              '<div class="setting"><label class="name" for="sPaste">' + SETTING_NAMES.paste_policy + lockBadge('paste_policy') + '</label>' +
+              '<div class="why">&ldquo;Record&rdquo; lets students paste but logs it where you can see it. &ldquo;Block&rdquo; only accepts typed answers.</div>' +
+              '<select id="sPaste"' + dis('paste_policy') + '><option value="own"' + (e.paste_policy === 'own' ? ' selected' : '') + '>Own words only (recommended)</option><option value="record"' + (e.paste_policy === 'record' ? ' selected' : '') + '>Allow and record pastes</option><option value="block"' + (e.paste_policy === 'block' ? ' selected' : '') + '>Block pasting</option></select></div>' +
+
+              '<div class="setting"><div class="name" style="font-weight:600;font-size:15px">' + SETTING_NAMES.outputs + lockBadge('outputs') + '</div>' +
+              '<div class="why">After the dialogue, students can write a paper, take a test, or both. Test mode is still being built. Until it is, students finish with the paper.</div>' +
+              '<div class="checks"><label><input type="checkbox" id="sOutPaper"' + (outs.indexOf('paper') >= 0 ? ' checked' : '') + dis('outputs') + '> Paper</label>' +
+              '<label><input type="checkbox" id="sOutTest"' + (outs.indexOf('test') >= 0 ? ' checked' : '') + dis('outputs') + '> Test</label></div></div>' +
+
+              '<div class="setting"><label class="name" for="sLevel">' + SETTING_NAMES.reading_level + lockBadge('reading_level') + '</label>' +
+              '<div class="why">For example &ldquo;grade 9&rdquo; or &ldquo;first-year university.&rdquo; Leave empty for no preference.</div>' +
+              '<input class="text-input" id="sLevel" value="' + esc(e.reading_level) + '"' + dis('reading_level') + '></div>' +
+
+              '<div class="setting"><label class="name" for="sGuide">' + SETTING_NAMES.tutor_guidance + lockBadge('tutor_guidance') + '</label>' +
+              '<div class="why">Anything the tutor should know about your course: your terms, your examples, what to emphasize, what to avoid.' +
+              (schoolGuidance ? ' The school also tells the tutor: <em>&ldquo;' + esc(schoolGuidance) + '&rdquo;</em>' : '') + '</div>' +
+              '<textarea class="text-area" id="sGuide" rows="4"' + dis('tutor_guidance') + '>' + esc(e.tutor_guidance) + '</textarea></div>';
+        }
+
+        function drawObjectives() {
+            var l = $('objList');
+            if (!cur.objectives.length) { l.innerHTML = '<p class="empty">No objectives yet. Add one, or re-read the syllabus.</p>'; return; }
+            l.innerHTML = cur.objectives.map(function (o, i) {
+                return '<div class="row" style="margin-bottom:8px;align-items:flex-start">' +
+                    '<textarea class="text-area obj-in" rows="2" data-i="' + i + '" aria-label="Objective ' + (i + 1) + '" style="min-height:0;resize:vertical">' + esc(o) + '</textarea>' +
+                    '<button class="iconbtn" data-up="' + i + '" aria-label="Move up"' + (i === 0 ? ' disabled' : '') + '>&uarr;</button>' +
+                    '<button class="iconbtn" data-del="' + i + '" aria-label="Delete objective">&times;</button></div>';
+            }).join('');
+            l.querySelectorAll('.obj-in').forEach(function (inp) {
+                inp.addEventListener('input', function () { cur.objectives[+inp.getAttribute('data-i')] = inp.value; });
+            });
+            l.querySelectorAll('[data-up]').forEach(function (b) {
+                b.addEventListener('click', function () {
+                    var i = +b.getAttribute('data-up'), o = cur.objectives;
+                    var t = o[i - 1]; o[i - 1] = o[i]; o[i] = t; drawObjectives();
+                });
+            });
+            l.querySelectorAll('[data-del]').forEach(function (b) {
+                b.addEventListener('click', function () { cur.objectives.splice(+b.getAttribute('data-del'), 1); drawObjectives(); });
+            });
+        }
+
+        function createCourse() {
+            var title = $('cTitle').value.trim();
+            if (!title) { note('cErr', 'Give the course a title.'); return; }
+            note('cErr', ''); $('createBtn').disabled = true; $('createBtn').textContent = 'Reading the syllabus…';
+            api('/teacher/course/create', { title: title, syllabus: $('cSyl').value }).then(function (r) {
+                toast(r.extract_method === 'ai' ? 'Objectives drafted from your syllabus. Please review them.' : 'Objectives pulled from the syllabus structure. Please review them.');
+                openCourse(r.course);
+            }).catch(function (e) { note('cErr', e.message); $('createBtn').disabled = false; $('createBtn').textContent = 'Create course and read the syllabus'; });
+        }
+
+        function reread() {
+            if (!confirm('Replace the current objectives with new ones read from the syllabus?')) return;
+            api('/teacher/course/update', { id: cur.id, syllabus: $('cSyl').value, title: $('cTitle').value, reextract: true }).then(function (r) {
+                cur = r.course; drawCourse(); toast('Objectives re-read. Please review them.');
+            }).catch(function (e) { toast(e.message); });
+        }
+
+        function collectOverrides() {
+            var d = cur.defaults, o = {};
+            function put(k, v, same) { if (!lockedKey(k) && !same) o[k] = v; }
+            put('grasp_threshold', parseInt($('sThr').value, 10) || d.grasp_threshold, parseInt($('sThr').value, 10) === d.grasp_threshold);
+            put('paste_policy', $('sPaste').value, $('sPaste').value === d.paste_policy);
+            var outs = []; if ($('sOutPaper').checked) outs.push('paper'); if ($('sOutTest').checked) outs.push('test');
+            if (!outs.length) outs = d.outputs;
+            put('outputs', outs, outs.slice().sort().join() === (d.outputs || []).slice().sort().join());
+            put('reading_level', $('sLevel').value.trim(), $('sLevel').value.trim() === (d.reading_level || ''));
+            put('tutor_guidance', $('sGuide').value.trim(), $('sGuide').value.trim() === (d.tutor_guidance || ''));
+            return o;
+        }
+
+        function saveCourse() {
+            var objs = cur.objectives.map(function (s) { return s.trim(); }).filter(Boolean);
+            if (!objs.length) { note('cErr', 'Add at least one learning objective so students have something to master.'); return; }
+            note('cErr', ''); $('saveBtn').disabled = true;
+            api('/teacher/course/update', {
+                id: cur.id, title: $('cTitle').value, syllabus: $('cSyl').value,
+                overrides: collectOverrides(), objectives: objs
+            }).then(function (r) { cur = r.course; drawCourse(); toast('Saved.'); })
+              .catch(function (e) { note('cErr', e.message); $('saveBtn').disabled = false; });
+        }
+
+        // ---------- school (admin) ----------
+        function renderSchool() {
+            var p = school.policy, d = p.defaults, L = p.locked || [];
+            function lk(k) { return '<label class="checks" style="margin-top:6px"><span class="checks"><label><input type="checkbox" data-lock="' + k + '"' + (L.indexOf(k) >= 0 ? ' checked' : '') + '> Teachers cannot change this</label></span></label>'; }
+            $('paneSchool').innerHTML =
+                '<p class="screen-sub">The school sets the defaults for every course. Lock a rule and no teacher can change it. Anything unlocked, a teacher can adjust for their own course.</p>' +
+                '<div class="field"><label for="shName">School name</label><input class="text-input" id="shName" value="' + esc(school.name) + '"></div>' +
+                '<div class="card">' +
+                '<div class="setting"><label class="name" for="dThr">Default grasp threshold</label><input type="number" id="dThr" min="50" max="100" step="5" value="' + d.grasp_threshold + '"> %' + lk('grasp_threshold') + '</div>' +
+                '<div class="setting"><label class="name" for="dPaste">Pasting into answers</label><select id="dPaste"><option value="own"' + (d.paste_policy === 'own' ? ' selected' : '') + '>Own words only (recommended)</option><option value="record"' + (d.paste_policy === 'record' ? ' selected' : '') + '>Allow and record pastes</option><option value="block"' + (d.paste_policy === 'block' ? ' selected' : '') + '>Block pasting</option></select>' + lk('paste_policy') + '</div>' +
+                '<div class="setting"><div class="name" style="font-weight:600;font-size:15px">What students can finish with</div><div class="checks"><label><input type="checkbox" id="dOutPaper"' + (d.outputs.indexOf('paper') >= 0 ? ' checked' : '') + '> Paper</label><label><input type="checkbox" id="dOutTest"' + (d.outputs.indexOf('test') >= 0 ? ' checked' : '') + '> Test</label></div>' + lk('outputs') + '</div>' +
+                '<div class="setting"><label class="name" for="dLevel">Default reading level</label><input class="text-input" id="dLevel" value="' + esc(d.reading_level) + '">' + lk('reading_level') + '</div>' +
+                '<div class="setting"><label class="name" for="dGuide">Default tutor guidance</label><div class="why">A starting point teachers can replace. Unlike the house rules below, this one can be overridden.</div><textarea class="text-area" id="dGuide" rows="3">' + esc(d.tutor_guidance) + '</textarea>' + lk('tutor_guidance') + '</div>' +
+                '</div>' +
+                '<div class="field"><label for="shGuide">House rules for the tutor</label><textarea class="text-area" id="shGuide" rows="4" placeholder="For example: Be warm. Never shame a student. Keep examples appropriate for minors.">' + esc(p.guidance) + '</textarea><div class="hint">Always applies to every course, in addition to the teacher&rsquo;s own guidance.</div></div>' +
+                '<div class="inline-note error" id="shErr" hidden></div>' +
+                '<div class="sticky-save"><button class="btn btn-primary" id="shSave">Save school settings</button></div>';
+            $('shSave').addEventListener('click', function () {
+                var outs = []; if ($('dOutPaper').checked) outs.push('paper'); if ($('dOutTest').checked) outs.push('test');
+                var locked = []; document.querySelectorAll('[data-lock]').forEach(function (c) { if (c.checked) locked.push(c.getAttribute('data-lock')); });
+                api('/admin/school', { name: $('shName').value, policy: {
+                    defaults: { grasp_threshold: parseInt($('dThr').value, 10) || 80, paste_policy: $('dPaste').value, outputs: outs, reading_level: $('dLevel').value.trim(), tutor_guidance: $('dGuide').value.trim() },
+                    locked: locked, guidance: $('shGuide').value.trim()
+                } }).then(function (s) { school = s; $('schoolName').textContent = s.name; renderSchool(); toast('School settings saved.'); })
+                  .catch(function (e) { note('shErr', e.message); });
+            });
+        }
+
+        // ---------- teachers (admin) ----------
+        function renderTeachers() {
+            var p = $('paneTeachers');
+            p.innerHTML = '<p class="screen-sub">Add each teacher. They get a passcode, shown once. Write it down or pass it on straight away.</p>' +
+                '<div class="row" style="margin-bottom:16px"><input class="text-input" id="tName" placeholder="Teacher name" autocomplete="off"><button class="btn btn-primary" id="tAdd" style="flex:none">Add</button></div>' +
+                '<div id="tReveal"></div><div id="tList"></div>';
+            $('tAdd').addEventListener('click', function () { saveTeacher({ name: $('tName').value }); });
+            api('/admin/teachers').then(function (list) {
+                $('tList').innerHTML = list.length ? list.map(function (t) {
+                    return '<div class="card"><div class="topline"><div><h3>' + esc(t.name) + '</h3><div class="meta">' + t.courses + ' course' + (t.courses === 1 ? '' : 's') + '</div></div>' +
+                        '<button class="btn btn-ghost" data-reset="' + t.id + '" style="flex:none">New passcode</button></div></div>';
+                }).join('') : '<p class="empty">No teachers yet.</p>';
+                $('tList').querySelectorAll('[data-reset]').forEach(function (b) {
+                    b.addEventListener('click', function () {
+                        if (confirm('Make a new passcode? The old one stops working and that teacher is signed out.')) saveTeacher({ id: +b.getAttribute('data-reset') });
+                    });
+                });
+            }).catch(function (e) { toast(e.message); });
+        }
+
+        function saveTeacher(body) {
+            api('/admin/teacher/save', body).then(function (r) {
+                renderTeachers();
+                // renderTeachers rebuilt the pane, so show the passcode after it
+                setTimeout(function () {
+                    $('tReveal').innerHTML = '<div class="inline-note good"><strong>' + esc(r.name || 'Teacher') + '</strong> passcode (shown once):<div class="passcode-reveal">' + esc(r.passcode) + '</div></div>';
+                }, 0);
+            }).catch(function (e) { toast(e.message); });
+        }
+
+        // ---------- AI model ----------
+        function checkAI() {
+            api('/ai/status').then(function (s) {
+                var b = $('aiBanner');
+                if (s.active) { b.hidden = true; return; }
+                b.hidden = false;
+                b.innerHTML = '<span><strong>No AI model is connected.</strong> Students get generic questions and understanding is only guessed from keywords. ' +
+                    (auth.role === 'admin' ? 'Set one up in the <button class="linkbtn" id="bannerFix">AI model</button> tab.' : 'Ask your school admin to set one up.') + '</span>';
+                var f = $('bannerFix'); if (f) f.addEventListener('click', function () { go('ai'); });
+            }).catch(function () { /* banner is best-effort */ });
+        }
+
+        function renderAI() {
+            var p = $('paneAI');
+            p.innerHTML = '<p class="screen-sub">The AI that tutors your students and checks their understanding. Run it on this computer and student writing never leaves the school.</p><div id="aiBody"><p class="empty">Loading&hellip;</p></div>';
+            api('/admin/llm').then(drawAI).catch(function (e) { toast(e.message); });
+        }
+
+        var SRC = { saved: 'chosen here', env: 'set by the server settings', detected: 'found running on this computer', none: 'not set' };
+
+        function drawAI(st) {
+            var c = st.config || {};
+            var isLocalUrl = /^https?:\/\/(localhost|127\.|192\.168\.|10\.|\[::1\])/.test(c.url || 'http://localhost');
+            var mode = c.provider === 'anthropic' ? 'anthropic' : (c.provider === 'openai' && !isLocalUrl ? 'compat' : 'openai'), local = mode === 'openai';
+            var keyNote = function (envOk) {
+                return st.key_saved ? 'A key is saved. Paste a new one to replace it, or leave this empty to keep it.' : (envOk ? 'A key is set on the server. Paste one here to use it instead.' : 'No key yet.');
+            };
+            var opts = function (sel) {
+                var list = (st.models || []).slice();
+                if (sel && list.indexOf(sel) < 0) list.unshift(sel);
+                return '<option value="">(same as tutor)</option>' + list.map(function (m) { return '<option value="' + esc(m) + '"' + (m === sel ? ' selected' : '') + '>' + esc(m) + '</option>'; }).join('');
+            };
+            var tutorOpts = (function () {
+                var list = (st.models || []).slice();
+                if (c.model && list.indexOf(c.model) < 0) list.unshift(c.model);
+                return list.map(function (m) { return '<option value="' + esc(m) + '"' + (m === c.model ? ' selected' : '') + '>' + esc(m) + '</option>'; }).join('');
+            })();
+            $('aiBody').innerHTML =
+                '<div class="card"><h3>' + (st.active ? 'Connected' : 'Not connected') + '</h3><div class="meta">' +
+                (st.active ? esc(mode === 'anthropic' ? 'Anthropic cloud' : (mode === 'compat' ? 'Cloud provider' : 'On this computer or network')) + ' &middot; ' + esc(c.model) + ' &middot; ' + (SRC[st.source] || '') : 'Choose a model below.') + '</div></div>' +
+
+                '<div class="field"><label for="aiProv">Where the AI runs</label><select class="text-input" id="aiProv">' +
+                '<option value="anthropic"' + (mode === 'anthropic' ? ' selected' : '') + '>Claude (Anthropic cloud, recommended)</option>' +
+                '<option value="compat"' + (mode === 'compat' ? ' selected' : '') + '>Another cloud provider (OpenRouter, Together, Fireworks, and others)</option>' +
+                '<option value="openai"' + (mode === 'openai' ? ' selected' : '') + '>On this computer (Ollama, LM Studio, or similar)</option></select>' +
+                '<div class="hint" id="aiPriv"></div></div>' +
+
+                '<div id="aiLocal"' + (local ? '' : ' hidden') + '>' +
+                '<div class="field"><label for="aiUrl">Server address</label><div class="row"><input class="text-input" id="aiUrl" value="' + esc(c.url || 'http://localhost:11434/v1') + '" autocapitalize="none" spellcheck="false"><button class="btn btn-ghost" id="aiFind" style="flex:none">Find models</button></div>' +
+                '<div class="hint">Ollama uses the default. LM Studio is usually http://localhost:1234/v1.</div></div>' +
+                '<div class="field"><label for="aiModel">Tutor model</label><select class="text-input" id="aiModel">' + (tutorOpts || '<option value="">No models found</option>') + '</select></div>' +
+                '<div class="field"><label for="aiJudge">Grading model</label><select class="text-input" id="aiJudge">' + opts(c.judge_model && c.judge_model !== c.model ? c.judge_model : '') + '</select>' +
+                '<div class="hint">Decides whether a student really understood. Use the most capable model your computer can run. Leave as is to use the tutor model.</div></div></div>' +
+
+                '<div id="aiCompat"' + (mode === 'compat' ? '' : ' hidden') + '>' +
+                '<div class="field"><label for="aiCUrl">Provider address</label><input class="text-input" id="aiCUrl" value="' + esc(mode === 'compat' ? c.url : 'https://openrouter.ai/api/v1') + '" autocapitalize="none" spellcheck="false">' +
+                '<div class="hint">OpenRouter is https://openrouter.ai/api/v1. Together is https://api.together.xyz/v1. Fireworks is https://api.fireworks.ai/inference/v1.</div></div>' +
+                '<div class="field"><label for="aiCModel">Tutor model</label><input class="text-input" id="aiCModel" value="' + esc(mode === 'compat' ? (c.model || '') : '') + '" placeholder="for example z-ai/glm-5.3-flash" autocapitalize="none" spellcheck="false"></div>' +
+                '<div class="field"><label for="aiCJudge">Grading model</label><input class="text-input" id="aiCJudge" value="' + esc(mode === 'compat' && c.judge_model !== c.model ? (c.judge_model || '') : '') + '" placeholder="leave empty to use the tutor model" autocapitalize="none" spellcheck="false"></div></div>' +
+                '<div id="aiKey"' + (local ? ' hidden' : '') + '><div class="field"><label for="aiKeyIn">API key</label><input class="text-input" id="aiKeyIn" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="paste key">' +
+                '<div class="hint" id="aiKeyHint">' + keyNote(st.key_env) + ' It is kept in this school\'s own database file and never shown again. <button class="linkbtn" id="aiKeyClear" type="button"' + (st.key_saved ? '' : ' hidden') + '>Remove saved key</button></div></div>' +
+                '<div class="inline-note warn">Student writing is sent to this provider. Before using real students, check the provider\'s education or no-retention terms.</div></div>' +
+
+                '<div class="inline-note error" id="aiErr" hidden></div>' +
+                '<div class="btn-row"><button class="btn btn-primary" id="aiSave">Save</button><button class="btn btn-ghost" id="aiTest">Test connection</button></div>' +
+                '<h3 class="section-title" style="margin-top:28px">Check the grading</h3>' +
+                '<p class="screen-sub">Runs five sample student answers through the grading model: two that show real understanding and three that should not count. Run it before trusting a model with real students.</p>' +
+                '<button class="btn btn-ghost" id="aiSelf">Run grading check</button><div id="aiResult" style="margin-top:14px"></div>';
+
+            function priv() {
+                var v = $('aiProv').value;
+                $('aiPriv').textContent = v === 'openai' ? 'Student writing stays on your computer or school network.'
+                    : (v === 'anthropic' ? 'Student writing is sent to Anthropic to be answered.' : 'Student writing is sent to the provider you choose.');
+                $('aiLocal').hidden = v !== 'openai'; $('aiCompat').hidden = v !== 'compat'; $('aiKey').hidden = v === 'openai';
+            }
+            priv(); $('aiProv').addEventListener('change', priv);
+
+            $('aiFind').addEventListener('click', function () {
+                api('/admin/llm/models?url=' + encodeURIComponent($('aiUrl').value.trim())).then(function (m) {
+                    if (!m.length) { toast('No models found at that address. Is the server running?'); return; }
+                    st.models = m; c.url = $('aiUrl').value.trim(); c.provider = 'openai'; c.model = $('aiModel').value || m[0];
+                    drawAI(st); toast(m.length + ' model' + (m.length === 1 ? '' : 's') + ' found.');
+                }).catch(function (e) { toast(e.message); });
+            });
+            $('aiSave').addEventListener('click', function () {
+                note('aiErr', '');
+                var v = $('aiProv').value, body = { provider: v === 'anthropic' ? 'anthropic' : 'openai' };
+                if (v === 'openai') { body.url = $('aiUrl').value.trim(); body.model = $('aiModel').value; body.judge_model = $('aiJudge').value; }
+                if (v === 'compat') {
+                    body.url = $('aiCUrl').value.trim(); body.model = $('aiCModel').value.trim(); body.judge_model = $('aiCJudge').value.trim();
+                    if (!body.url || !body.model) { note('aiErr', 'Enter the provider address and a model name.'); return; }
+                }
+                if (v !== 'openai') body.api_key = $('aiKeyIn').value.trim();
+                api('/admin/llm', body).then(function (s) { toast('Saved.'); drawAI(s); checkAI(); }).catch(function (e) { note('aiErr', e.message); });
+            });
+            $('aiKeyClear').addEventListener('click', function () {
+                api('/admin/llm', { provider: $('aiProv').value === 'anthropic' ? 'anthropic' : 'openai', url: $('aiProv').value === 'compat' ? $('aiCUrl').value.trim() : '', model: $('aiProv').value === 'compat' ? $('aiCModel').value.trim() : '', clear_key: true })
+                    .then(function (s) { toast('Key removed.'); drawAI(s); checkAI(); }).catch(function (e) { note('aiErr', e.message); });
+            });
+            $('aiTest').addEventListener('click', function () {
+                var b = $('aiTest'); b.disabled = true; b.textContent = 'Testing\u2026';
+                api('/admin/llm/test', {}).then(function (r) {
+                    toast(r.ok ? 'Connected (' + (r.ms / 1000).toFixed(1) + 's). It said: ' + r.reply : 'Could not connect: ' + r.error);
+                }).catch(function (e) { toast(e.message); }).then(function () { b.disabled = false; b.textContent = 'Test connection'; });
+            });
+            $('aiSelf').addEventListener('click', function () {
+                var b = $('aiSelf'); b.disabled = true; b.textContent = 'Checking\u2026 this can take a minute';
+                api('/admin/llm/selftest', {}).then(function (r) {
+                    $('aiResult').innerHTML = '<div class="inline-note ' + (r.passed === r.total ? 'good' : (r.passed >= r.total - 1 ? 'warn' : 'error') ) + '"><strong>' + r.passed + ' of ' + r.total + ' correct.</strong> ' + esc(r.verdict) + '</div>' +
+                        r.results.map(function (x) {
+                            return '<div class="setting" style="padding:8px 0"><span class="pill ' + (x.pass ? 'good' : 'mid') + '">' + (x.pass ? 'correct' : 'wrong') + '</span> ' + esc(x.name) +
+                                ' <span class="meta">(should ' + (x.want_credit ? 'count' : 'not count') + ', ' + (x.got_credit ? 'it counted' : 'it did not count') + ')</span></div>';
+                        }).join('');
+                }).catch(function (e) { $('aiResult').innerHTML = '<div class="inline-note error">' + esc(e.message) + '</div>'; })
+                  .then(function () { b.disabled = false; b.textContent = 'Run grading check'; });
+            });
+        }
+
+        // ---------- boot ----------
+        auth = load();
+        if (auth && auth.token) { enter(); }
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Socratean</title>
+    <meta name="description" content="Socratic learning with authenticity verification">
+    <meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1c1914" media="(prefers-color-scheme: dark)">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Socratean">
+    <link rel="apple-touch-icon" href="/icon-180.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+    <header class="appbar">
+        <a class="wordmark" href="/">
+            <svg class="witness-glyph" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+                <path class="wg-fill" d="M12 3 A9 9 0 0 0 12 21 Z"/>
+                <circle cx="12" cy="12" r="9" fill="none" class="wg-line" stroke-width="1.5"/>
+                <line x1="12" y1="3" x2="12" y2="21" class="wg-line" stroke-width="1.5"/>
+            </svg>
+            Socratean
+        </a>
+        <div class="appbar-step" id="appbarStep" hidden>
+            <span class="step-name" id="stepName"></span>
+            <span id="stepCount"></span>
+        </div>
+    </header>
+    <div class="journey" id="journey" hidden><div class="journey-fill" id="journeyFill"></div></div>
+
+    <main>
+
+        <!-- 1 · Welcome -->
+        <section class="screen active" id="screen-welcome">
+            <div class="screen-inner">
+                <div class="welcome-hero">
+                    <div class="welcome-glyph">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path class="wg-fill" d="M12 3 A9 9 0 0 0 12 21 Z"/>
+                            <circle cx="12" cy="12" r="9" fill="none" class="wg-line" stroke-width="1"/>
+                            <line x1="12" y1="3" x2="12" y2="21" class="wg-line" stroke-width="1"/>
+                        </svg>
+                    </div>
+                    <h1>Socratean</h1>
+                    <p class="welcome-tag">A tutor that teaches, then asks. Understanding you earn, in a voice that is yours.</p>
+                    <p class="welcome-status" id="welcomeStatus" hidden></p>
+                </div>
+
+                <p class="welcome-ease"><strong>Easier than faking it.</strong> Talk to it like a friend. Guess. Change your mind. Say what confuses you. That is the whole job, and it is what earns your certificate. Making it up takes more work than learning it.</p>
+
+                <div class="welcome-how">
+                    <div class="how-step">
+                        <span class="how-num">i.</span>
+                        <p><strong>Establish your voice</strong> Four short answers, just how you would say it. There are no right answers.</p>
+                    </div>
+                    <div class="how-step">
+                        <span class="how-num">ii.</span>
+                        <p><strong>Learn it, do not recite it</strong> We teach you a little, then ask a question that makes you use it. You level up by thinking in your own words, not by repeating ours.</p>
+                    </div>
+                    <div class="how-step">
+                        <span class="how-num">iii.</span>
+                        <p><strong>Earn your certificate</strong> Write the paper. Its authenticity is verified against your own voice.</p>
+                    </div>
+                    <div class="how-step">
+                        <span class="how-num">iv.</span>
+                        <p><strong>Nothing is hidden</strong> Your teacher can see how you write: your typing, any pasting, and time away from this page. That is how your own thinking shows.</p>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="studentName">Your name</label>
+                    <input type="text" class="text-input" id="studentName" placeholder="What should I call you?" autocomplete="name" autocapitalize="words" enterkeyhint="go">
+                </div>
+                <div class="field">
+                    <label for="courseCode">Course code</label>
+                    <input type="text" class="text-input" id="courseCode" placeholder="From your teacher" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" enterkeyhint="go">
+                </div>
+                <div class="inline-note error" id="welcomeError" hidden></div>
+                <button class="btn btn-primary" id="beginBtn">Begin the dialogue</button>
+
+                <div class="welcome-footer">
+                    <div class="witness-mark">[1 = &minus;1]</div>
+                    <p>The Witness sees both sides without collapsing either.</p>
+                    <p>Concept by T0Rs &middot; The Epoch Project</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2 · Writing fingerprint -->
+        <section class="screen" id="screen-profile">
+            <div class="screen-inner">
+                <div class="q-progress" id="qProgress"></div>
+                <div class="q-kicker">Your writing fingerprint</div>
+                <h2 class="q-text" id="qText"></h2>
+                <p class="q-sub">A few sentences, written the way you naturally write. This is how Socratean learns to recognize <em>you</em>.</p>
+                <textarea class="text-area q-textarea" id="qAnswer" placeholder="In your own words&hellip;" enterkeyhint="enter"></textarea>
+                <div class="hint" id="qHint"></div>
+                <p class="capture-note" style="text-align:left;padding:0">Write this the way you would say it. Your teacher can see how it was written, which is how your own voice shows.</p>
+                <div class="inline-note error" id="profileError" hidden></div>
+                <div class="btn-row">
+                    <button class="btn btn-ghost" id="qBackBtn">Back</button>
+                    <button class="btn btn-primary" id="qNextBtn">Next</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4 · Socratic dialogue -->
+        <section class="screen screen-flex" id="screen-dialogue">
+            <div class="dialogue-head">
+                <div class="dh-inner">
+                    <div class="dh-row">
+                        <div>
+                            <div class="dh-subject" id="dhSubject">Dialogue</div>
+                            <div class="dh-topic" id="dhTopic"></div>
+                        </div>
+                        <button class="concepts-btn" id="conceptsBtn">
+                            <span class="cb-count" id="conceptCount">0/0</span> levels
+                        </button>
+                    </div>
+                    <div class="meter-track">
+                        <div class="meter-fill" id="meterFill"></div>
+                        <div class="meter-goal"></div>
+                    </div>
+                    <div class="game-hud" id="gameHud" aria-live="polite"></div>
+                    <div class="meter-labels">
+                        <span class="m-now" id="meterNow"><strong>0%</strong> understanding</span>
+                        <span>goal <span id="goalLabel">80</span>% &middot; <span id="exchangeLabel">0 exchanges</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="messages" id="messages">
+                <div class="messages-inner" id="messagesInner"></div>
+            </div>
+
+            <div class="composer">
+                <div class="composer-inner">
+                    <textarea id="chatInput" rows="1" placeholder="Reason it out&hellip;" enterkeyhint="send"></textarea>
+                    <button class="send-btn" id="sendBtn" aria-label="Send">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                            <path d="M10 16 V4 M4.5 9.5 L10 4 L15.5 9.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <p class="capture-note">Your teacher can see how you write: typing, pasting, and time away from this page. That is how your own thinking shows.</p>
+            </div>
+        </section>
+
+        <!-- 5 · Synthesis -->
+        <section class="screen" id="screen-synthesis">
+            <div class="screen-inner">
+                <div id="synthesisForm">
+                    <div class="q-kicker">Synthesis</div>
+                    <h2 class="screen-title">Say what you now understand</h2>
+                    <p class="screen-sub">One paragraph, in your own words &mdash; no notes, no help. This is the proof that the dialogue did its work.</p>
+                    <textarea class="text-area synth-textarea" id="synthesisInput" placeholder="As I now understand it&hellip;"></textarea>
+                    <div class="hint" id="synthHint">At least 100 characters.</div>
+                    <p class="capture-note" style="text-align:left;padding:0">Your teacher can see how you write: typing, pasting, and time away from this page. That is how your own thinking shows.</p>
+                    <div class="inline-note error" id="synthesisError" hidden></div>
+                    <div class="btn-row">
+                        <button class="btn btn-ghost" id="synthBackBtn">Back to dialogue</button>
+                        <button class="btn btn-primary" id="synthSubmitBtn">Submit for evaluation</button>
+                    </div>
+                </div>
+
+                <div id="synthesisResult" hidden>
+                    <div class="q-kicker">Evaluation</div>
+                    <h2 class="screen-title">The verdict on your understanding</h2>
+                    <div class="mastery-result">
+                        <div class="mastery-badge" id="masteryBadge"></div>
+                        <div class="mastery-eval" id="masteryEval"></div>
+                        <div class="mastery-meta">
+                            <div class="fp-stat">
+                                <div class="fp-val" id="synthStyle">&ndash;</div>
+                                <div class="fp-label">style match to your fingerprint</div>
+                            </div>
+                            <div class="fp-stat">
+                                <div class="fp-val" id="synthVoice">&ndash;</div>
+                                <div class="fp-label">voice reading</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="toPaperBtn" style="margin-top:16px">Write your paper</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6 · Paper -->
+        <section class="screen" id="screen-paper">
+            <div class="screen-inner">
+                <div class="q-kicker">The paper</div>
+                <h2 class="screen-title">Set it down in writing</h2>
+                <p class="screen-sub">Build your paper from what you argued in the dialogue. Tap one of your own lines to weave it in.</p>
+
+                <div class="quotes-block" id="quotesBlock" hidden>
+                    <div class="quotes-title">Your own words, from the dialogue</div>
+                    <div class="quotes-scroll" id="quotesScroll"></div>
+                </div>
+
+                <div class="field">
+                    <label for="paperTitle">Title</label>
+                    <input type="text" class="text-input" id="paperTitle" placeholder="Name your paper" autocapitalize="sentences">
+                </div>
+                <div class="field">
+                    <label for="paperContent">Paper</label>
+                    <textarea class="text-area paper-textarea" id="paperContent" placeholder="Write in the same voice you reasoned in&hellip;"></textarea>
+                    <div class="paper-count"><span id="wordCount">0 words</span><span id="paperHint">At least 200 characters</span></div>
+                    <p class="capture-note" style="text-align:left;padding:0">Your teacher can see how you write: typing, pasting, and time away from this page. That is how your own thinking shows.</p>
+                </div>
+
+                <div class="inline-note error" id="paperError" hidden></div>
+                <button class="btn btn-primary" id="certifyBtn">Generate authenticity certificate</button>
+            </div>
+        </section>
+
+        <!-- 7 · Certificate -->
+        <section class="screen" id="screen-certificate">
+            <div class="screen-inner">
+                <div class="certificate" id="certificate">
+                    <div class="cert-seal" id="certSeal">
+                        <svg viewBox="0 0 108 108" fill="none" aria-hidden="true">
+                            <circle cx="54" cy="54" r="40" class="laurel" stroke-width="1.5"/>
+                            <!-- laurel branches -->
+                            <g class="laurel" stroke-width="1.5" stroke-linecap="round">
+                                <path d="M22 76 C14 62, 14 46, 22 32"/>
+                                <path d="M20 66 q-7 -2 -9 -9 q8 0 9 9"/>
+                                <path d="M17 54 q-7 -3 -8 -11 q8 1 8 11"/>
+                                <path d="M18 42 q-6 -5 -5 -13 q7 3 5 13"/>
+                                <path d="M86 76 C94 62, 94 46, 86 32"/>
+                                <path d="M88 66 q7 -2 9 -9 q-8 0 -9 9"/>
+                                <path d="M91 54 q7 -3 8 -11 q-8 1 -8 11"/>
+                                <path d="M90 42 q6 -5 5 -13 q-7 3 -5 13"/>
+                            </g>
+                        </svg>
+                        <div class="seal-score"><span class="num" id="sealScore">&ndash;</span><span class="pct">authentic</span></div>
+                    </div>
+
+                    <div class="cert-kicker">Certificate of Authenticity</div>
+                    <h2 class="cert-title" id="certPaperTitle"></h2>
+                    <div class="cert-student" id="certStudent"></div>
+                    <p class="cert-line" id="certLine"></p>
+
+                    <div class="cert-verdict" id="certVerdict"></div>
+                    <p class="cert-status" id="certStatus" hidden></p>
+
+                    <div class="cert-grid" id="certGrid"></div>
+
+                    <div class="cert-warnings" id="certWarnings" hidden></div>
+
+                    <div class="cert-footer">
+                        <div class="witness-mark">[1 = &minus;1]</div>
+                        <p>The Witness sees both sides without collapsing either.</p>
+                        <p id="certGenerated"></p>
+                        <p>Socratean &middot; Concept by T0Rs &middot; The Epoch Project</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="shareCertBtn">Share certificate</button>
+                <div class="btn-row">
+                    <button class="btn btn-ghost" id="downloadCertBtn">Save as text</button>
+                    <button class="btn btn-ghost" id="newSessionBtn">New session</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- concepts bottom sheet -->
+    <div class="sheet-backdrop" id="sheetBackdrop"></div>
+    <div class="sheet" id="conceptsSheet" role="dialog" aria-label="Concepts to master">
+        <div class="sheet-handle"></div>
+        <h3 id="sheetTitle">What you will show</h3>
+        <p>Each is checked off when your own reasoning demonstrates it.</p>
+        <div id="conceptRows"></div>
+    </div>
+
+    <div class="toast" id="toast" role="status"></div>
+
+    <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+    "name": "Socratean",
+    "short_name": "Socratean",
+    "description": "Socratic learning with authenticity verification. The tutor who never answers - only asks.",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#f6f2e9",
+    "theme_color": "#f6f2e9",
+    "icons": [
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
