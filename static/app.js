@@ -1,4 +1,4 @@
-/* Socratean — student PWA (vanilla JS, no dependencies) */
+/* Socratean, student PWA (vanilla JS, no dependencies) */
 (function () {
     'use strict';
 
@@ -354,7 +354,7 @@
         var len = $('qAnswer').value.trim().length;
         var hint = $('qHint');
         if (len >= 50) {
-            hint.textContent = 'Good — that’s enough to read your voice.';
+            hint.textContent = 'Good, that’s enough to read your voice.';
             hint.className = 'hint ok';
         } else {
             hint.textContent = 'A few sentences (' + len + '/50 characters minimum).';
@@ -377,7 +377,7 @@
     $('qNextBtn').addEventListener('click', function () {
         var answer = $('qAnswer').value.trim();
         if (answer.length < 50) {
-            showNote('profileError', 'Write a little more — at least 50 characters, in your natural voice.');
+            showNote('profileError', 'Write a little more, at least 50 characters, in your natural voice.');
             return;
         }
         S.drafts[S.qIndex] = $('qAnswer').value;
@@ -451,7 +451,7 @@
             .catch(function () {
                 hideThinking();
                 btn.disabled = false;
-                addTutorMessage('Welcome. Let us examine “' + S.topic + '” together. Before I ask anything — what do you already know, or believe, about it?', true);
+                addTutorMessage('Welcome. Let us examine “' + S.topic + '” together. Before I ask anything, what do you already know, or believe, about it?', true);
             });
     }
 
@@ -520,7 +520,7 @@
                 sending = false;
                 $('sendBtn').disabled = false;
                 meta.textContent = 'not sent';
-                toast(err.message || 'Message failed — check your connection.');
+                toast(err.message || 'Message failed, check your connection.');
                 chatInput.value = text;
                 autogrow();
             });
@@ -675,7 +675,7 @@
     $('synthSubmitBtn').addEventListener('click', function () {
         var text = $('synthesisInput').value.trim();
         if (text.length < 100) {
-            showNote('synthesisError', 'Give it a real paragraph — at least 100 characters.');
+            showNote('synthesisError', 'Give it a real paragraph, at least 100 characters.');
             return;
         }
         hideNote('synthesisError');
@@ -788,7 +788,7 @@
         var title = $('paperTitle').value.trim();
         var content = $('paperContent').value.trim();
         if (!title) { showNote('paperError', 'Give your paper a title.'); return; }
-        if (content.length < 200) { showNote('paperError', 'Your paper needs more substance — at least 200 characters.'); return; }
+        if (content.length < 200) { showNote('paperError', 'Your paper needs more substance, at least 200 characters.'); return; }
         hideNote('paperError');
         var btn = $('certifyBtn');
         setBusy(btn, true, 'Verifying authenticity…');
@@ -878,7 +878,7 @@
     function certText() {
         var c = S.cert || {};
         return [
-            'SOCRATEAN — CERTIFICATE OF AUTHENTICITY',
+            'SOCRATEAN, CERTIFICATE OF AUTHENTICITY',
             '',
             'Student: ' + (c.student_name || S.name),
             'Paper: ' + (c.paper_title || ''),
@@ -896,7 +896,7 @@
             '',
             'Earned through Socratic dialogue. Verified against the student’s own writing fingerprint.',
             '',
-            '[1 = -1] — The Witness sees both sides without collapsing either.',
+            '[1 = -1], The Witness sees both sides without collapsing either.',
             'Concept by T0Rs (The Epoch Project)'
         ].join('\n');
     }
@@ -1011,7 +1011,7 @@
                 if (!exchanges.length) openingMessage();
             })
             .catch(function () {
-                // Session gone (server reset) — start fresh but keep the name.
+                // Session gone (server reset), start fresh but keep the name.
                 var name = S.name;
                 S = defaultState();
                 S.name = name;

@@ -1,6 +1,6 @@
-/* Socratean service worker — app-shell cache, API always network */
+/* Socratean service worker, app-shell cache, API always network */
 
-var CACHE_NAME = 'socratean-shell-v9';
+var CACHE_NAME = 'socratean-shell-v10';
 
 var SHELL = [
     '/',
@@ -48,7 +48,7 @@ self.addEventListener('fetch', function (event) {
     var url = new URL(req.url);
     if (url.origin !== self.location.origin) return;
 
-    // NEVER cache or serve API responses from cache — always network.
+    // NEVER cache or serve API responses from cache, always network.
     if (url.pathname.indexOf('/api/') === 0) return;
 
     // Navigations: network first, fall back to cached shell for offline load.

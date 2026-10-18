@@ -1,6 +1,6 @@
 /* ============================================================
-   Socratean — mobile-first PWA styles
-   Identity: "the examined page" — warm ivory stationery, ink,
+   Socratean, mobile-first PWA styles
+   Identity: "the examined page", warm ivory stationery, ink,
    terracotta accent (red-figure pottery), hairline rules.
    Green = authentic voice. Amber = caution. Never decorative.
    ============================================================ */
@@ -487,7 +487,7 @@ main {
 }
 .concepts-btn .cb-count { color: var(--accent); font-variant-numeric: tabular-nums; }
 
-/* proficiency meter — the emotional core of the dialogue */
+/* proficiency meter, the emotional core of the dialogue */
 .meter-track {
     position: relative;
     height: 8px;

@@ -1,8 +1,25 @@
-# Socratean AI, School Edition (v2.0)
+# Socratean AI, School Edition
 
-Run: `go build -o socratean . && ./socratean` (first run prints the school admin passcode once; or set `SOCRATEAN_ADMIN_PASSCODE`). Teacher panel: `/teacher.html`. Students: `/`, with a course code. Optional: `ANTHROPIC_API_KEY` (cloud model), `SOCRATEAN_MODEL`, `SOCRATEAN_DB`, `PORT`. Without a key, grasp checking falls back to keywords and the teacher is told so on each objective. Design: `SOCRATEAN_SCHOOL_DESIGN_v1.0_10-10-2026.md`.
+A tutor that teaches a little, then asks. Students learn through dialogue until they grasp each objective from the syllabus, and the result becomes their paper or test. Every answer is saved and the teacher sees signs of a person thinking, with the student's exact words. It gives students a reason not to plagiarize: the learning is the easier path.
+
+Not a trained model. It works with Claude, any OpenAI-compatible service (OpenRouter, Together, and others), or a local model. One program, one SQLite file, no accounts, no telemetry. Student data stays on the machine that runs it.
+
+## Run it
+
+Download a build from the Releases page (Mac, Windows, Linux), or build it yourself:
+
+    go build -o socratean . && ./socratean
+
+The first run prints the school admin passcode once (or set `SOCRATEAN_ADMIN_PASSCODE`). Teacher panel: `/teacher.html`. Students open `/` and enter a course code. Choose the AI under the AI tab; keys pasted there are stored in the local database and never shown again. Environment options: `ANTHROPIC_API_KEY`, `SOCRATEAN_PROVIDER`, `SOCRATEAN_MODEL`, `SOCRATEAN_DB`, `PORT`. Full guide: `SETUP-FOR-SCHOOLS.md`. Design and limits: `SOCRATEAN_SCHOOL_DESIGN_v1.0_10-10-2026.md`.
+
+## Honest limits
+
+Typing and paste capture is reported by the browser, so it is evidence for a teacher to weigh, never proof. Thresholds are untested guesses until piloted with a real class. Test mode is not built yet. Windows and Linux builds are cross-compiled and untested. Have FERPA and COPPA questions reviewed before using with students, especially under 13.
+
+MIT licensed. Concept by T0Rs (Have Mind Media).
 
 ---
+
 
 # Original v1 readme
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Socratean — Professor</title>
+    <title>Socratean, Professor</title>
     <meta name="description" content="Professor dashboard: sessions, dialogues, authenticity flags">
     <meta name="theme-color" content="#f6f2e9" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#1c1914" media="(prefers-color-scheme: dark)">
@@ -176,7 +176,7 @@
                 var certified = s.status === 'certified';
                 var authHtml = certified
                     ? '<span class="sc-auth ' + authClass(s.authenticity_score) + '">' + s.authenticity_score + '% authentic</span>'
-                    : '<span class="sc-auth">—</span>';
+                    : '<span class="sc-auth">-</span>';
                 var topicLine = s.course_title
                     ? esc(s.course_title)
                     : (s.subject
@@ -272,7 +272,7 @@
 
             html += '<div class="detail-stats">';
             html += '<div class="d-stat"><div class="d-val' + (s.proficiency >= 80 ? ' good' : '') + '">' + (s.proficiency || 0) + '%</div><div class="d-label">proficiency</div></div>';
-            html += '<div class="d-stat"><div class="d-val' + (certified ? ' ' + authCls : '') + '">' + (certified ? (s.authenticity_score || 0) + '%' : '—') + '</div><div class="d-label">authenticity</div></div>';
+            html += '<div class="d-stat"><div class="d-val' + (certified ? ' ' + authCls : '') + '">' + (certified ? (s.authenticity_score || 0) + '%' : '-') + '</div><div class="d-label">authenticity</div></div>';
             html += '<div class="d-stat"><div class="d-val">' + exchanges.length + '</div><div class="d-label">exchanges</div></div>';
             html += '<div class="d-stat"><div class="d-val' + (reviewCount ? ' mid' : '') + '">' + reviewCount + '</div><div class="d-label">to review</div></div>';
             html += '</div></div>';
